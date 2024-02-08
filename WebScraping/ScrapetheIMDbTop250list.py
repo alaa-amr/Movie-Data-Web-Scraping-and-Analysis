@@ -1,6 +1,7 @@
 # Import scrapy
 import scrapy
 import re
+import pandas as pd
 
 # Import the CrawlerProcess: for running the spider
 from scrapy.crawler import CrawlerProcess
@@ -26,7 +27,7 @@ class MoviesSpider(scrapy.Spider):
     #yield response.follow(url = cleaned_links[0],callback = self.parse_pages)
     
     for link in cleaned_links:
-      print(link)
+      #print(link)
       yield response.follow(url = link,callback = self.parse_pages)
       
 
@@ -74,3 +75,16 @@ crawler.signals.connect(spider_closed, signals.spider_closed)
 
 crawler_process.crawl(crawler)
 crawler_process.start()
+
+
+# Create DataFrame
+IMDB = pd.DataFrame.from_dict(movie_dict, orient='index', columns=['ReleaseYear', 'Rating', 'Rank'])
+
+# Reset the index to convert movie name from index to a normal column
+IMDB.reset_index(inplace=True)
+
+# Rename the columns
+IMDB.columns = ['MovieName', 'Year', 'Rating', 'Rank']
+IMDB.to_csv('movie_data.csv', index=False)
+
+print(IMDB)
